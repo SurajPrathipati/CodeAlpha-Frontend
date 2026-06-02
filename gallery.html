@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Gallery</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: #0d0d0d;
+    color: #f0ece4;
+    min-height: 100vh;
+    padding: 48px 32px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  header p.eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #6b6760;
+    margin-bottom: 12px;
+    font-weight: 400;
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 400;
+    color: #f0ece4;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  header h1 em {
+    font-style: italic;
+    color: #c9b99a;
+  }
+
+  .divider {
+    width: 40px;
+    height: 1px;
+    background: #3a3732;
+    margin: 20px auto 0;
+  }
+
+  /* Filters */
+  .filters {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 9px 20px;
+    border: 1px solid #2e2c29;
+    border-radius: 2px;
+    background: transparent;
+    color: #6b6760;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .filter-btn:hover {
+    border-color: #5a5650;
+    color: #c9b99a;
+  }
+
+  .filter-btn.active {
+    background: #c9b99a;
+    border-color: #c9b99a;
+    color: #0d0d0d;
+  }
+
+  /* Gallery */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: 220px;
+    gap: 6px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .gallery-item {
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    border-radius: 2px;
+  }
+
+  .gallery-item:nth-child(1) { grid-column: span 5; grid-row: span 2; }
+  .gallery-item:nth-child(2) { grid-column: span 4; }
+  .gallery-item:nth-child(3) { grid-column: span 3; }
+  .gallery-item:nth-child(4) { grid-column: span 3; }
+  .gallery-item:nth-child(5) { grid-column: span 4; }
+  .gallery-item:nth-child(6) { grid-column: span 5; }
+
+  .gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: block;
+  }
+
+  .gallery-item:hover img {
+    transform: scale(1.07);
+  }
+
+  .gallery-item .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(13,13,13,0.55) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: flex-end;
+    padding: 18px;
+  }
+
+  .gallery-item:hover .overlay {
+    opacity: 1;
+  }
+
+  .overlay-tag {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #c9b99a;
+    font-weight: 500;
+    border: 1px solid rgba(201,185,154,0.4);
+    padding: 4px 10px;
+    border-radius: 1px;
+    backdrop-filter: blur(4px);
+  }
+
+  .gallery-item.hidden {
+    display: none;
+  }
+
+  /* Lightbox */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 9, 8, 0.97);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox.open {
+    display: flex;
+  }
+
+  .lightbox-inner {
+    position: relative;
+    max-width: 85vw;
+    max-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lightbox-inner img {
+    max-width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 2px;
+    display: block;
+  }
+
+  .lb-btn {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(201,185,154,0.08);
+    border: 1px solid rgba(201,185,154,0.15);
+    color: #c9b99a;
+    font-size: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    line-height: 1;
+  }
+
+  .lb-btn:hover { background: rgba(201,185,154,0.18); }
+  .lb-prev { left: 20px; }
+  .lb-next { right: 20px; }
+
+  .lb-close {
+    position: fixed;
+    top: 20px;
+    right: 24px;
+    background: transparent;
+    border: none;
+    color: #6b6760;
+    font-size: 26px;
+    cursor: pointer;
+    transition: color 0.2s;
+    line-height: 1;
+    padding: 4px;
+  }
+
+  .lb-close:hover { color: #c9b99a; }
+
+  .lb-counter {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: #4a4843;
+    font-weight: 400;
+  }
+
+  @media (max-width: 700px) {
+    body { padding: 32px 16px; }
+    .gallery {
+      grid-template-columns: 1fr 1fr;
+      grid-auto-rows: 200px;
+    }
+    .gallery-item:nth-child(n) { grid-column: span 1; grid-row: span 1; }
+    .gallery-item:nth-child(1) { grid-column: span 2; }
+    .lb-btn { width: 40px; height: 40px; font-size: 16px; }
+    .lb-prev { left: 8px; }
+    .lb-next { right: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Visual Collection</p>
+  <h1>A curated <em>gallery</em></h1>
+  <div class="divider"></div>
+</header>
+
+<nav class="filters" role="navigation" aria-label="Filter gallery">
+  <button class="filter-btn active" onclick="filter('all', this)">All</button>
+  <button class="filter-btn" onclick="filter('nature', this)">Nature</button>
+  <button class="filter-btn" onclick="filter('city', this)">City</button>
+  <button class="filter-btn" onclick="filter('animals', this)">Animals</button>
+</nav>
+
+<div class="gallery" id="gallery">
+  <div class="gallery-item nature" onclick="openLightbox(0)">
+    <img src="https://picsum.photos/id/10/800/600" alt="Nature" loading="lazy">
+    <div class="overlay"><span class="overlay-tag">Nature</span></div>
+  </div>
+  <div class="gallery-item city" onclick="openLightbox(1)">
+    <img src="https://picsum.photos/id/1011/800/600" alt="City" loading="lazy">
+    <div class="overlay"><span class="overlay-tag">City</span></div>
+  </div>
+  <div class="gallery-item animals" onclick="openLightbox(2)">
+    <img src="https://picsum.photos/id/1025/800/600" alt="Animals" loading="lazy">
+    <div class="overlay"><span class="overlay-tag">Animals</span></div>
+  </div>
+  <div class="gallery-item nature" onclick="openLightbox(3)">
+    <img src="https://picsum.photos/id/1039/800/600" alt="Nature" loading="lazy">
+    <div class="overlay"><span class="overlay-tag">Nature</span></div>
+  </div>
+  <div class="gallery-item city" onclick="openLightbox(4)">
+    <img src="https://picsum.photos/id/1043/800/600" alt="City" loading="lazy">
+    <div class="overlay"><span class="overlay-tag">City</span></div>
+  </div>
+  <div class="gallery-item animals" onclick="openLightbox(5)">
+    <img src="https://picsum.photos/id/237/800/600" alt="Animals" loading="lazy">
+    <div class="overlay"><span class="overlay-tag">Animals</span></div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <button class="lb-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
+  <button class="lb-btn lb-prev" onclick="navigate(-1)" aria-label="Previous">&#8249;</button>
+  <div class="lightbox-inner">
+    <img id="lb-img" src="" alt="">
+  </div>
+  <button class="lb-btn lb-next" onclick="navigate(1)" aria-label="Next">&#8250;</button>
+  <div class="lb-counter" id="lb-counter"></div>
+</div>
+
+<script>
+  const allItems = Array.from(document.querySelectorAll('.gallery-item'));
+  let visibleItems = [...allItems];
+  let currentIndex = 0;
+
+  function filter(cat, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    allItems.forEach(item => {
+      const show = cat === 'all' || item.classList.contains(cat);
+      item.classList.toggle('hidden', !show);
+    });
+    visibleItems = allItems.filter(i => !i.classList.contains('hidden'));
+    visibleItems.forEach((item, i) => {
+      item.onclick = () => openLightbox(i);
+    });
+  }
+
+  function openLightbox(index) {
+    currentIndex = index;
+    updateLightbox();
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function navigate(dir) {
+    currentIndex = (currentIndex + dir + visibleItems.length) % visibleItems.length;
+    updateLightbox();
+  }
+
+  function updateLightbox() {
+    const img = visibleItems[currentIndex].querySelector('img');
+    document.getElementById('lb-img').src = img.src;
+    document.getElementById('lb-img').alt = img.alt;
+    document.getElementById('lb-counter').textContent = (currentIndex + 1) + ' / ' + visibleItems.length;
+  }
+
+  document.getElementById('lightbox').addEventListener('click', function(e) {
+    if (e.target === this) closeLightbox();
+  });
+
+  document.addEventListener('keydown', e => {
+    const lb = document.getElementById('lightbox');
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') navigate(1);
+    if (e.key === 'ArrowLeft') navigate(-1);
+  });
+
+  filter('all', document.querySelector('.filter-btn'));
+</script>
+</body>
+</html>
