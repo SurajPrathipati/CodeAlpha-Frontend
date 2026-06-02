@@ -1,22 +1,32 @@
-# CodeAlpha Frontend Development Internship Tasks
+# CodeAlpha Frontend Internship Tasks
 
-This repository contains the completed frontend development tasks assigned during the CodeAlpha Internship.
+## Task 1: Image Gallery
+File: gallery.html
 
-## Tasks Completed
+Features:
+- Responsive Design
+- Lightbox View
+- Next/Previous Navigation
+- Hover Effects
+- Smooth Transitions
 
-### 1. Portfolio Website
-A responsive personal portfolio website showcasing skills, projects, and contact information.
+## Task 2: Calculator
+File: calculator.html
 
-### 2. Calculator
-A functional calculator built using HTML, CSS, and JavaScript capable of performing basic arithmetic operations.
+Features:
+- Basic Arithmetic Operations
+- Responsive Interface
+- User-Friendly Design
 
-### 3. Image Gallery
-A responsive image gallery with:
-- Next/Previous navigation
-- Lightbox view
-- Hover effects
-- Smooth transitions
-- Responsive design
+## Task 3: Portfolio Website
+File: portfolio.html
+
+Features:
+- Personal Introduction
+- Skills Section
+- Projects Showcase
+- Contact Information
+- Responsive Design
 
 ## Technologies Used
 - HTML5
@@ -24,4 +34,4 @@ A responsive image gallery with:
 - JavaScript
 
 ## Author
-**Suraj Prathipati**
+Suraj Prathipati
